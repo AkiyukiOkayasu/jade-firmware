@@ -1,1 +1,1 @@
-# RP2040-skelton
+# jade firmware for RP2040
