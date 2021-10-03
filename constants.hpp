@@ -5,4 +5,4 @@
 
 namespace pin {
 inline constexpr unsigned int led = PICO_DEFAULT_LED_PIN; // 25
-}
+} // namespace pin
