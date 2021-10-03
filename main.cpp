@@ -101,6 +101,7 @@ int main() {
   startTime = get_absolute_time();
 
   while (1) {
+    std::printf("Hello\n");
     tud_task();
     midi_task();
   }
