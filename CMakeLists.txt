@@ -7,6 +7,10 @@ set(CMAKE_C_STANDARD 11)#C11
 set(CMAKE_CXX_STANDARD 17)#C++17
 pico_sdk_init()
 
+include(FetchContent)
+FetchContent_Declare(pum GIT_REPOSITORY https://github.com/AkiyukiOkayasu/pum GIT_TAG v0.1.0)
+FetchContent_MakeAvailable(pum)
+
 add_executable(${PROJECT_NAME}
     main.cpp
     usb_descriptors.c
@@ -25,7 +29,8 @@ add_compile_options(-Wall
 pico_enable_stdio_usb(${PROJECT_NAME} 0)# Enable stdio to USB serial
 pico_enable_stdio_uart(${PROJECT_NAME} 1)# Disable stdio to UART
 pico_add_extra_outputs(${PROJECT_NAME})# Create map/bin/hex/uf2 file etc.
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME}     
     pico_stdlib
-    tinyusb_device
+    tinyusb_device    
+    pum
 )
