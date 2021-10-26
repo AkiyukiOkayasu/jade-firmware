@@ -85,8 +85,8 @@ uint8_t note_sequence[] = {
 
 namespace midi
 {
-constexpr uint8_t cable_num = 0; // MIDI jack associated with USB endpoint
-constexpr uint8_t channel = 0;   // 0 for channel 1
+constexpr uint8_t cableNum = 0; // MIDI jack associated with USB endpoint
+constexpr uint8_t channel = 0;  // 0 for channel 1
 } // namespace midi
 
 void midi_task()
@@ -172,7 +172,6 @@ int main()
 
     while (1)
     {
-        std::printf ("Hello\n");
         tud_task();
         midi_task();
     }
