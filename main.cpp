@@ -87,6 +87,7 @@ namespace midi
 {
 constexpr uint8_t cableNum = 0; // MIDI jack associated with USB endpoint
 constexpr uint8_t channel = 0;  // 0 for channel 1
+pum::Parser parser {};
 } // namespace midi
 
 void midi_task()
@@ -98,6 +99,7 @@ void midi_task()
     while (tud_midi_available())
     {
         tud_midi_packet_read (packet);
+        midi::parser.parse (packet);
     }
 
     // send note every 1000 ms
@@ -153,6 +155,23 @@ void tud_suspend_cb (bool remote_wakeup_en) { (void) remote_wakeup_en; }
 // Invoked when usb bus is resumed
 void tud_resume_cb (void) {}
 
+//==============================================================================
+//MIDI callback
+void noteOnCallback (pum::Note note)
+{
+    std::printf ("noteOn: %d, %d, %dch\n", note.noteNumber, note.velocity, note.channel);
+}
+
+void noteOffCallback (pum::Note note)
+{
+    std::printf ("noteOff: %d, %dch\n", note.noteNumber, note.channel);
+}
+
+void controlChangeCallback (pum::ControlChange cc)
+{
+    std::printf ("cc: %d, %d, %dch\n", cc.controlNumber, cc.value, cc.channel);
+}
+
 //--------------------------------------------------------------------+
 // main
 //--------------------------------------------------------------------+
@@ -160,6 +179,10 @@ int main()
 {
     // Project discripsion.
     bi_decl (bi_program_description ("Simple USB-MIDI."));
+
+    midi::parser.onNoteOn = noteOnCallback;
+    midi::parser.onNoteOff = noteOffCallback;
+    midi::parser.onControlChange = controlChangeCallback;
 
     stdio_init_all();
     tusb_init(); // Init tinyUSB
