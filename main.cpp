@@ -88,6 +88,7 @@ namespace midi
 constexpr uint8_t cableNum = 0; // MIDI jack associated with USB endpoint
 constexpr uint8_t channel = 0;  // 0 for channel 1
 pum::Parser parser {};
+pum::Generator generator { channel, cableNum };
 } // namespace midi
 
 void midi_task()
@@ -121,12 +122,12 @@ void midi_task()
     }
 
     // Send Note On for current position at full velocity (127) on channel 1.
-    uint8_t note_on[3] = { 0x90 | midi::channel, note_sequence[note_pos], 127 };
-    tud_midi_stream_write (midi::cable_num, note_on, 3);
+    midi::generator.makeNoteOn (packet, note_sequence[note_pos], 127);
+    tud_midi_packet_write (packet);
 
     // Send Note Off for previous note.
-    uint8_t note_off[3] = { 0x80 | midi::channel, note_sequence[previous], 0 };
-    tud_midi_stream_write (midi::cable_num, note_off, 3);
+    midi::generator.makeNoteOff (packet, note_sequence[previous]);
+    tud_midi_packet_write (packet);
 
     // Increment position
     note_pos++;
