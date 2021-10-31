@@ -1,5 +1,6 @@
 #include "constants.hpp"
 #include "hardware/gpio.h"
+#include "hardware/i2c.h"
 #include "pico/binary_info.h"
 #include "pico/stdlib.h"
 #include "pico/time.h"
@@ -159,18 +160,31 @@ void tud_resume_cb (void) {}
 //==============================================================================
 //MIDI callback
 void noteOnCallback (pum::Note note)
+void initI2C()
 {
     std::printf ("noteOn: %d, %d, %dch\n", note.noteNumber, note.velocity, note.channel);
+    i2c_init (i2c0, I2C_BAUDRATE);
+    gpio_set_function (pin::I2C0_SCL, GPIO_FUNC_I2C);
+    gpio_set_function (pin::I2C0_SDA, GPIO_FUNC_I2C);
+    gpio_pull_up (pin::I2C0_SCL);
+    gpio_pull_up (pin::I2C0_SDA);
 }
 
 void noteOffCallback (pum::Note note)
+void initGPIO()
 {
     std::printf ("noteOff: %d, %dch\n", note.noteNumber, note.channel);
+    // Init GPIO
+    gpio_init (pin::led);
+    gpio_set_dir (pin::led, GPIO_OUT);
 }
 
 void controlChangeCallback (pum::ControlChange cc)
+void initPeripherals()
 {
     std::printf ("cc: %d, %d, %dch\n", cc.controlNumber, cc.value, cc.channel);
+    initGPIO();
+    initI2C();
 }
 
 //--------------------------------------------------------------------+
@@ -178,8 +192,10 @@ void controlChangeCallback (pum::ControlChange cc)
 //--------------------------------------------------------------------+
 int main()
 {
-    // Project discripsion.
-    bi_decl (bi_program_description ("Simple USB-MIDI."));
+    bi_decl (bi_program_description ("Simple USB-MIDI."));                      // Project discripsion.
+    bi_decl (bi_2pins_with_func (pin::I2C0_SDA, pin::I2C0_SCL, GPIO_FUNC_I2C)); //I2C pins
+
+    initPeripherals();
 
     midi::parser.onNoteOn = noteOnCallback;
     midi::parser.onNoteOff = noteOffCallback;
@@ -187,10 +203,6 @@ int main()
 
     stdio_init_all();
     tusb_init(); // Init tinyUSB
-
-    // Init GPIO
-    gpio_init (pin::led);
-    gpio_set_dir (pin::led, GPIO_OUT);
 
     startTime = get_absolute_time();
 
