@@ -1,6 +1,7 @@
 #include "constants.hpp"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
+#include "midiCallback.hpp"
 #include "pico/binary_info.h"
 #include "pico/stdlib.h"
 #include "pico/time.h"
@@ -10,14 +11,14 @@
 #include <cstdint>
 #include <cstdio>
 
-absolute_time_t startTime;
-absolute_time_t currentTime;
-
-// Variable that holds the current position in the sequence.
-uint32_t note_pos = 0;
+//==============================================================================
+//Constants
+namespace
+{
+inline constexpr uint I2C_BAUDRATE = 100'000; //100kHz
 
 // Store example melody as an array of note values
-uint8_t note_sequence[] = {
+inline constexpr uint8_t note_sequence[] = {
     74,
     78,
     81,
@@ -83,15 +84,27 @@ uint8_t note_sequence[] = {
     98,
     102
 };
+} // namespace
+
+//==============================================================================
+//Variables
+namespace
+{
+absolute_time_t startTime;
+absolute_time_t currentTime;
+uint32_t note_pos = 0; // Variable that holds the current position in the sequence.
 
 namespace midi
 {
-constexpr uint8_t cableNum = 0; // MIDI jack associated with USB endpoint
-constexpr uint8_t channel = 0;  // 0 for channel 1
-pum::Parser parser {};
-pum::Generator generator { channel, cableNum };
+    constexpr uint8_t cableNum = 0; // MIDI jack associated with USB endpoint
+    constexpr uint8_t channel = 0;  // 0 for channel 1
+    pum::Parser parser {};
+    pum::Generator generator { channel, cableNum };
 } // namespace midi
+} // namespace
 
+//==============================================================================
+//Functions
 void midi_task()
 {
     // The MIDI interface always creates input and output port/jack descriptors
@@ -140,9 +153,8 @@ void midi_task()
     }
 }
 
-//--------------------------------------------------------------------+
-// Device callbacks
-//--------------------------------------------------------------------+
+//==============================================================================
+//USB callback functions
 // Invoked when device is mounted
 void tud_mount_cb (void) {}
 
@@ -158,11 +170,8 @@ void tud_suspend_cb (bool remote_wakeup_en) { (void) remote_wakeup_en; }
 void tud_resume_cb (void) {}
 
 //==============================================================================
-//MIDI callback
-void noteOnCallback (pum::Note note)
 void initI2C()
 {
-    std::printf ("noteOn: %d, %d, %dch\n", note.noteNumber, note.velocity, note.channel);
     i2c_init (i2c0, I2C_BAUDRATE);
     gpio_set_function (pin::I2C0_SCL, GPIO_FUNC_I2C);
     gpio_set_function (pin::I2C0_SDA, GPIO_FUNC_I2C);
@@ -170,19 +179,15 @@ void initI2C()
     gpio_pull_up (pin::I2C0_SDA);
 }
 
-void noteOffCallback (pum::Note note)
 void initGPIO()
 {
-    std::printf ("noteOff: %d, %dch\n", note.noteNumber, note.channel);
     // Init GPIO
     gpio_init (pin::led);
     gpio_set_dir (pin::led, GPIO_OUT);
 }
 
-void controlChangeCallback (pum::ControlChange cc)
 void initPeripherals()
 {
-    std::printf ("cc: %d, %d, %dch\n", cc.controlNumber, cc.value, cc.channel);
     initGPIO();
     initI2C();
 }
@@ -200,6 +205,7 @@ int main()
     midi::parser.onNoteOn = noteOnCallback;
     midi::parser.onNoteOff = noteOffCallback;
     midi::parser.onControlChange = controlChangeCallback;
+    midi::parser.onSysEx = sysExCallback;
 
     stdio_init_all();
     tusb_init(); // Init tinyUSB
