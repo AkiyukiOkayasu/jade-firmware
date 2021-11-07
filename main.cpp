@@ -15,8 +15,6 @@
 //Constants
 namespace
 {
-inline constexpr uint I2C_BAUDRATE = 100'000; //100kHz
-
 // Store example melody as an array of note values
 inline constexpr uint8_t note_sequence[] = {
     74,
@@ -172,7 +170,7 @@ void tud_resume_cb (void) {}
 //==============================================================================
 void initI2C()
 {
-    i2c_init (i2c0, I2C_BAUDRATE);
+    i2c_init (i2c0, i2c::BAUDRATE);
     gpio_set_function (pin::I2C0_SCL, GPIO_FUNC_I2C);
     gpio_set_function (pin::I2C0_SDA, GPIO_FUNC_I2C);
     gpio_pull_up (pin::I2C0_SCL);
