@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)#C++17
 pico_sdk_init()
 
 include(FetchContent)
-FetchContent_Declare(pum GIT_REPOSITORY https://github.com/AkiyukiOkayasu/pum GIT_TAG v0.1.0)
+FetchContent_Declare(pum GIT_REPOSITORY https://github.com/AkiyukiOkayasu/pum GIT_TAG v1.0.2)
 FetchContent_MakeAvailable(pum)
 
 add_executable(${PROJECT_NAME}

@@ -200,10 +200,10 @@ int main()
 
     initPeripherals();
 
-    midi::parser.onNoteOn = noteOnCallback;
-    midi::parser.onNoteOff = noteOffCallback;
-    midi::parser.onControlChange = controlChangeCallback;
-    midi::parser.onSysEx = sysExCallback;
+    midi::parser.setNoteOnCallback (noteOnCallback);
+    midi::parser.setNoteOffCallback (noteOffCallback);
+    midi::parser.setControlChangeCallback (controlChangeCallback);
+    midi::parser.setSysExCallback (sysExCallback);
 
     stdio_init_all();
     tusb_init(); // Init tinyUSB
