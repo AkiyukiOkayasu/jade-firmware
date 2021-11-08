@@ -11,13 +11,20 @@ include(FetchContent)
 FetchContent_Declare(pum GIT_REPOSITORY https://github.com/AkiyukiOkayasu/pum GIT_TAG v1.0.2)
 FetchContent_MakeAvailable(pum)
 
+# SEGGER RTTのパス変数
+set(RTT_DIR ${CMAKE_CURRENT_LIST_DIR}/SEGGER_RTT_V756d)
+
 add_executable(${PROJECT_NAME}
     main.cpp
     usb_descriptors.c
+    ${RTT_DIR}/RTT/SEGGER_RTT.c
+    ${RTT_DIR}/RTT/SEGGER_RTT_printf.c
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}
+  ${RTT_DIR}/Config
+  ${RTT_DIR}/RTT
   )
 
 add_compile_options(-Wall
