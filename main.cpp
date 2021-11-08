@@ -1,3 +1,4 @@
+#include "SEGGER_RTT.h"
 #include "constants.hpp"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
@@ -209,10 +210,18 @@ int main()
     tusb_init(); // Init tinyUSB
 
     startTime = get_absolute_time();
+    uint32_t i = 0;
 
     while (1)
     {
         tud_task();
         midi_task();
+        // SEGGER_RTT_WriteString (0, "Hello World from SEGGER!\r\n");
+        SEGGER_RTT_printf (0, "RTT: %d\n", i);
+        i++;
+        if (i >= 256)
+        {
+            i = 0;
+        }
     }
 }
