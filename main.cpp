@@ -169,6 +169,13 @@ void tud_suspend_cb (bool remote_wakeup_en) { (void) remote_wakeup_en; }
 void tud_resume_cb (void) {}
 
 //==============================================================================
+//GPIO callback
+void callback_gate1 (uint gpio, uint32_t events)
+{
+    //TODO 実装追加
+}
+
+//==============================================================================
 void initI2C()
 {
     i2c_init (i2c0, i2c::BAUDRATE);
@@ -183,6 +190,12 @@ void initGPIO()
     // Init GPIO
     gpio_init (pin::led);
     gpio_set_dir (pin::led, GPIO_OUT);
+
+    //Gate inputs
+    gpio_init (pin::gateIn1);
+    gpio_set_dir (pin::gateIn1, GPIO_IN);
+    gpio_pull_down (pin::gateIn1);
+    gpio_set_irq_enabled_with_callback (pin::gateIn1, gpio::edgeHigh, true, callback_gate1);
 }
 
 void initPeripherals()
