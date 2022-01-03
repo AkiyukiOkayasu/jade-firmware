@@ -2,6 +2,7 @@
 #include "constants.hpp"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
+#include "hardware/pwm.h"
 #include "midiCallback.hpp"
 #include "pico/binary_info.h"
 #include "pico/stdlib.h"
@@ -196,6 +197,12 @@ void initGPIO()
     gpio_set_dir (pin::gateIn1, GPIO_IN);
     gpio_pull_down (pin::gateIn1);
     gpio_set_irq_enabled_with_callback (pin::gateIn1, gpio::edgeHigh, true, callback_gate1);
+
+    //PWM output
+    gpio_set_function (pin::pwm0, GPIO_FUNC_PWM);
+    gpio_set_function (pin::pwm1, GPIO_FUNC_PWM);
+    uint slice_num = pwm_gpio_to_slice_num (pin::pwm0);
+    pwm_set_wrap (slice_num, 4095); //12bit 125MHz/4096=30.51758kHz
 }
 
 void initPeripherals()

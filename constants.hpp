@@ -10,6 +10,8 @@ inline constexpr unsigned int led = PICO_DEFAULT_LED_PIN; // 25
 inline constexpr unsigned int I2C0_SDA = 8;
 inline constexpr unsigned int I2C0_SCL = 9;
 inline constexpr unsigned int gateIn1 = 10; //未定
+inline constexpr unsigned int pwm0 = 0;
+inline constexpr unsigned int pwm1 = 1;
 } // namespace pin
 
 namespace i2c
